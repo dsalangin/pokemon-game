@@ -1,6 +1,7 @@
+import cn from 'classnames';
 import s from './style.module.css';
 
-const Layout = ({title, urlBg, colorBg='yellow', children}) => {
+const Layout = ({title, urlBg, colorBg='yellow', hcolor, children}) => {
   const styleRoot = {};
 
   if (colorBg) {
@@ -16,10 +17,10 @@ const Layout = ({title, urlBg, colorBg='yellow', children}) => {
       <div className={s.wrapper}>
           <article>
             <div className={s.title}>
-              <h3>{title}</h3>
+              <h3 style = {hcolor}>{title}</h3>
               <span className={s.separator}></span>
             </div>
-            <div className={`{${s.desc} ${s.full}}`}>
+            <div className={cn(s.desc, s.full)}>
               {children}
             </div>
           </article>
