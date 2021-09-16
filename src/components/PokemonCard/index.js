@@ -1,12 +1,22 @@
+<<<<<<< Updated upstream
 import { useState } from 'react';
+=======
+import cn from 'classnames';
+>>>>>>> Stashed changes
 
 import s from './style.module.css';
 import cardBackSide from '../../assets/card-back-side.jpg';
 
+<<<<<<< Updated upstream
 const PokemonCard = ({name, img, id, type, values}) => {
     const [isClick, setActive] = useState (false);
     const handleClick = () => {
         setActive(true);
+=======
+const PokemonCard = ({name, img, id, type, values, handleOpenPokemon, isActive}) => {
+    const handleClick = () => {
+        handleOpenPokemon && handleOpenPokemon(id)
+>>>>>>> Stashed changes
     };
     return (
         <div className={s.root} onClick={handleClick} >
