@@ -3,7 +3,6 @@ import s from './style.module.css';
 import Header from '../../components/Header/index';
 import Layout from '../../components/Layout/index';
 import Footer from '../../components/Footer/index';
-import MenuHeader from '../../components/MenuHeader/index';
 
 import PokemonCard from '../../components/PokemonCard/index';
 import POKEMONS from '../../components/PokemonCard/pokemons';
@@ -11,18 +10,12 @@ import POKEMONS from '../../components/PokemonCard/pokemons';
 import bg1 from '../../assets/bg1.jpg';
 import bg3 from '../../assets/bg3.jpg';
 
-const HomePage = ({onChangePage}) => {
-  const handleClick = (page) => {
-    onChangePage && onChangePage(page);
-  };
-  
+const HomePage = () => {
   return (
     <>
-      <MenuHeader />
       <Header 
         title="Pokemon Game"
         descr="This is simple triple triad card game"
-        onClickButton = {handleClick}
       />
       <Layout
         title="Rules"
