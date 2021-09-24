@@ -36,6 +36,8 @@ const StartPage = () => {
 
   const handleStartGameClick = () => {
     history.push('/game/board')
+    setPokemons({});
+    //Почистить контекст
   }
 
   return (
