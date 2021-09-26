@@ -8,14 +8,15 @@ const PokemonCard = ({className, name, img, id, type, values, onClickCard, minim
     };
 
     return (
-        <div className={cn(className, s.pokemonCard, {
+        <div
+            className={cn(className, s.pokemonCard, {
             [s.active]: isActive,
-            [s.selected]: isSelected
+            [s.selected]: isSelected,
         })}
         onClick = {handleClick}>
             <div className={s.cardFront}>
                 <div className={cn(s.wrap, s.front)}>
-                    <div className={cn(s.pokemon, s[type])} style={{backgroundColor: possession}}>
+                    <div className={cn(s.pokemon, s[type], s[possession])}>
                         <div className={s.values}>
                             <div className={cn(s.count, s.top)}>{values.top}</div>
                             <div className={cn(s.count, s.right)}>{values.right}</div>
@@ -25,7 +26,7 @@ const PokemonCard = ({className, name, img, id, type, values, onClickCard, minim
                         <div className={s.imgContainer}>
                             <img src={img} alt={name} />
                         </div>
-                        { !minimize && (<div className={s.info}>
+                        { minimize && (<div className={s.info}>
                             <span className={s.number}>#{id}</span>
                             <h3 className={s.name}>
                                 {name}

@@ -1,17 +1,18 @@
-import { PokemonContext } from '../../../../context/pokemonContext';
 import { useContext, useEffect, useState } from 'react';
 import {useHistory} from 'react-router-dom';
 
-import s from './style.module.css';
+import { PokemonContext } from '../../../../context/pokemonContext';
+
 import PokemonCard from '../../../../components/PokemonCard';
 import PlayerBoard from './component/PlayerBoard';
+
+import s from './style.module.css';
 
 
 const counterWin = (board, player1, player2) => {
     let player1Count = player1.length;
     let player2Count = player2.length;
 
-    console.log('#### board: ', board);
 
     board.forEach(item => {
         if(item.card.possession === 'red') {
@@ -27,7 +28,7 @@ const counterWin = (board, player1, player2) => {
 }
 
 const BoardPage = () => {
-    const { pokemons, player2Pokemons } = useContext(PokemonContext);
+    const { pokemons, player2Pokemons, getGameStatus } = useContext(PokemonContext);
     const [board, setBoard] = useState([]); 
     const [player1, setPlayer1] = useState(() => (
         Object.values(pokemons).map(item => ({
@@ -35,35 +36,37 @@ const BoardPage = () => {
             possession: 'blue'
         }))
     ));
-    console.log('#### object.values: ', Object.values(pokemons));
-    console.log('#### pokemons: ',pokemons);
-    console.log('#### player1: ',player1);
-    console.log('##### value: ', Object.values(pokemons).map(item => ({...item,possession: 'blue'})));
+
  
 
     const [player2, setPlayer2] = useState([]);
-    console.log(player2);
     const [choiseCard, setChoiceCard] = useState(null);
     const [steps, setSteps] = useState(0);
 
-    console.log('#### player2: ', player2);
+
     const history = useHistory();
-    console.log('#### board: ', board);
 
-    useEffect( async () => {
-        const boardResponse = await fetch('https://reactmarathon-api.netlify.app/api/board');
-        const boardRequest = await boardResponse.json();
 
-        setBoard(boardRequest.data);
+    useEffect(() => {
+        const fetcData = async () => {
+            const boardResponse = await fetch('https://reactmarathon-api.netlify.app/api/board');
+            const boardRequest = await boardResponse.json();
 
-        const player2Response = await fetch('https://reactmarathon-api.netlify.app/api/create-player');
-        const player2Request = await player2Response.json();
-        setPlayer2(() => {
-            return player2Request.data.map(item => ({
-                ...item,
-                possession: 'red',
-            }))
-        })
+            setBoard(boardRequest.data);
+
+            const player2Response = await fetch('https://reactmarathon-api.netlify.app/api/create-player');
+            const player2Request = await player2Response.json();
+
+            player2Pokemons(player2Request.data);
+
+            setPlayer2(() => {
+                return player2Request.data.map(item => ({
+                    ...item,
+                    possession: 'red',
+                }))
+            })
+        }
+        fetcData();
     }, []);
 
     if(Object.keys(pokemons).length === 0) {
@@ -71,8 +74,7 @@ const BoardPage = () => {
     }
 
     const handleClickBoardPlate = async(position) => {
-        console.log('#### position: ', position);
-        console.log('#### choiseCard: ', choiseCard);
+
         if(choiseCard) {
             const params = {
                 position,
@@ -80,45 +82,40 @@ const BoardPage = () => {
                 board,
             };
             const res = await fetch('https://reactmarathon-api.netlify.app/api/players-turn', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(params),
-});
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(params),
+            });
 
-const request = await res.json();
-
-console.log('#### request: ', request);
-
-player2Pokemons(player2);
+            const request = await res.json();
 
 
-if(choiseCard.player === 1) {
-    setPlayer1(prevState => prevState.filter(item => item.id !== choiseCard.id)
+            if(choiseCard.player === 1) {
+                setPlayer1(prevState => prevState.filter(item => item.id !== choiseCard.id))
+            }
 
-    )}
+            if(choiseCard.player === 2) {
+                setPlayer2(prevState => prevState.filter(item => item.id !== choiseCard.id))
+            }
 
-    if(choiseCard.player === 2) {
-        setPlayer2(prevState => prevState.filter(item => item.id !== choiseCard.id)
-    
-        )}
-
-        setBoard(request.data);
-        setSteps(prevState => {
-            const count = prevState + 1;
-            return count;
-        })
-
+            setBoard(request.data);
+            setSteps(prevState => {
+                const count = prevState + 1;
+                return count;
+            });
 
         }
     }
+
 
     useEffect(() => {
         if(steps === 9) {
             const [count1, count2] = counterWin(board, player1, player2);
             if(count1 > count2) {
                 alert('WIN');
+                getGameStatus(true);
             } else if (count2 > count1) {
                 alert('LOSE')
             } else {
@@ -126,9 +123,9 @@ if(choiseCard.player === 1) {
             }
 
             history.push('/game/finish');
-
         }
     }, [steps])
+
 
     return (
         <div className={s.root}>
@@ -144,7 +141,7 @@ if(choiseCard.player === 1) {
                 {
                     board.map(item => (
                         <div
-                            key= {item.position}
+                            key={item.position}
                             className={s.boardPlate} 
                             onClick={() => !item.card && handleClickBoardPlate(item.position)}
                         >
