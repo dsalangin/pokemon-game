@@ -36,21 +36,23 @@ const StartPage = () => {
 
   const handleStartGameClick = () => {
     history.push('/game/board')
+    setPokemons({});
+    //Почистить контекст
   }
 
   return (
     <>
-        <div>
+        <div className={s.buttonWrapper}>
           This is a game page.
+        
+
+          <button className={s.newPokemon} 
+          onClick={handleStartGameClick}
+          disabled={Object.keys(pokemonsContext.pokemons).length < 5}
+          >
+            Start Game
+          </button>
         </div>
-
-        <button className={s.newPokemon} 
-        onClick={handleStartGameClick}
-        disabled={Object.keys(pokemonsContext.pokemons).length < 5}
-        >
-          Start Game
-        </button>
-
         <div className={s.flex}>
           {
             Object.entries(pokemons).map(([key, {name, img, id, type, values, selected}]) => 
