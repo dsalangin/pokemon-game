@@ -1,30 +1,50 @@
 import { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
-import s from './style.module.css';
+
+
+import { getPokemonsAsync, selectPokemonsData, selectPokemonsLoading } from '../../../../store/pokemons';
+import { onSelectedPokemons, areSelectedPokemons } from '../../../../store/selectedPokemons';
 
 import PokemonCard from '../../../../components/PokemonCard/index';
 import { FireBaseContext } from '../../../../context/firebaseContext';
 import { PokemonContext } from '../../../../context/pokemonContext';
 
+import s from './style.module.css';
+
 const StartPage = () => {
   const firebase = useContext(FireBaseContext);
   const pokemonsContext = useContext(PokemonContext);
+
+  const SelectedPokemonsRedux = useSelector(areSelectedPokemons);
+  console.log('#### SelectedPokemonsRedux: ', SelectedPokemonsRedux);
+
+  const pokemonsRedux = useSelector(selectPokemonsData);
+  const dispatch = useDispatch();
+
+  console.log('#### pokemonsRedux: ', pokemonsRedux);
+
   const history = useHistory();
   const [pokemons, setPokemons] = useState({});
     
   useEffect(() => {
     firebase.getPokemonSoket((pokemons) => {
       setPokemons(pokemons);
+      dispatch(getPokemonsAsync());
     });
 
     return () => firebase.offPokemonSoket();
   }, []);
 
+  useEffect(() => {
+    setPokemons(pokemonsRedux);
+  }, [pokemonsRedux])
 
   const handleChangeSelected = (key) => {
     const pokemon = {...pokemons[key]}
-    pokemonsContext.onSelectedPokemons(key, pokemon);
+    //pokemonsContext.onSelectedPokemons(key, pokemon);
+    dispatch(onSelectedPokemons({key, pokemon}));
     setPokemons(prevState => ({
       ...prevState,
       [key]: {
@@ -32,12 +52,12 @@ const StartPage = () => {
         selected: !prevState[key].selected,
       }
     }))
+
   };
 
   const handleStartGameClick = () => {
     history.push('/game/board')
     setPokemons({});
-    //Почистить контекст
   }
 
   return (

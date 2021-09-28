@@ -18,9 +18,10 @@ const Finish = () => {
   const handleEndGameClick = () => {
     if(pokemonContext.gameStatus === true) {
       firebase.addPokemon(isSelected);
+      isSelected!==null && history.push('/game');
     }
     pokemonContext.clearContext();
-    history.push('/game');
+    //history.push('/game');
   }
 
   if(Object.keys(pokemonContext.pokemons).length === 0) {
