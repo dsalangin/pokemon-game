@@ -1,42 +1,48 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
+import FirebaseClass from '../../../../service/firebase';
 
 import PokemonCard from '../../../../components/PokemonCard/index';
-import { PokemonContext } from '../../../../context/pokemonContext';
-import { FireBaseContext } from '../../../../context/firebaseContext';
+
+import { areSelectedPokemons, clearSelectedPokemons } from '../../../../store/selectedPokemons';
+import { selectEnemyPokemonsData } from '../../../../store/enemyPokemons';
+import { currentGameStatus } from '../../../../store/gameStatus';
 
 import s from './style.module.css';
 
 
 const Finish = () => {
-  const firebase = useContext(FireBaseContext);
-  const pokemonContext = useContext(PokemonContext);
   const history = useHistory();
+  const dispatch = useDispatch();
 
-
+  const selectedPokemonsRedux = useSelector(areSelectedPokemons);
+  const selectEnemyPokemonsRedux = useSelector(selectEnemyPokemonsData);
+  const currentGameStatusRedux = useSelector(currentGameStatus);
+  
 
   const handleEndGameClick = () => {
-    if(pokemonContext.gameStatus === true) {
-      firebase.addPokemon(isSelected);
+    if(currentGameStatusRedux === true) {
+      FirebaseClass.addPokemon(isSelected);
       isSelected!==null && history.push('/game');
     }
-    pokemonContext.clearContext();
-    //history.push('/game');
-  }
+    dispatch(clearSelectedPokemons());
+    history.push('/game');
+  };
 
-  if(Object.keys(pokemonContext.pokemons).length === 0) {
+  if(Object.keys(selectedPokemonsRedux).length === 0) {
     history.replace('/game');
   }
 
-
-const [isSelected, setSelected] = useState(null);
+  const [isSelected, setSelected] = useState(null);
 
   return (
     <>
         <div className={s.wrap}>
         
           {
-            Object.entries(pokemonContext.pokemons).map(([key, {name, img, id, type, values}]) => (
+            Object.entries(selectedPokemonsRedux).map(([key, {name, img, id, type, values}]) => (
               <div key={key}>
               <PokemonCard
                 className={s.card}
@@ -53,7 +59,7 @@ const [isSelected, setSelected] = useState(null);
         </div>
         <div className={s.buttonWrap}>
           <button onClick={handleEndGameClick}
-            disabled={pokemonContext.gameStatus ? isSelected===null : false}
+            disabled={currentGameStatusRedux ? isSelected===null : false}
           >
             END GAME
           </button>
@@ -61,7 +67,7 @@ const [isSelected, setSelected] = useState(null);
         <div className={s.wrap}>
 
       {
-        pokemonContext.player2.map((item) => (
+        selectEnemyPokemonsRedux.map((item) => (
           <div key={item.id} 
             onClick={() => setSelected(item)}>
             <PokemonCard

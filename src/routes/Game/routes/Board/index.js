@@ -1,10 +1,13 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {useHistory} from 'react-router-dom';
-
-import { PokemonContext } from '../../../../context/pokemonContext';
+import { useDispatch, useSelector } from 'react-redux';
 
 import PokemonCard from '../../../../components/PokemonCard';
 import PlayerBoard from './component/PlayerBoard';
+
+import { areSelectedPokemons } from '../../../../store/selectedPokemons';
+import { getEnemyPokemonsAsync, selectEnemyPokemonsData } from '../../../../store/enemyPokemons';
+import { setGameStatus } from '../../../../store/gameStatus';
 
 import s from './style.module.css';
 
@@ -28,24 +31,25 @@ const counterWin = (board, player1, player2) => {
 }
 
 const BoardPage = () => {
-    const { pokemons, player2Pokemons, getGameStatus } = useContext(PokemonContext);
+    const dispatch = useDispatch();
+    const SelectedPokemonsRedux = useSelector(areSelectedPokemons);
+
+    const selectEnemyPokemonsRedux = useSelector(selectEnemyPokemonsData);
+    console.log('#### selectEnemyPokemonsRedux: ', selectEnemyPokemonsRedux);
+
     const [board, setBoard] = useState([]); 
     const [player1, setPlayer1] = useState(() => (
-        Object.values(pokemons).map(item => ({
+        Object.values(SelectedPokemonsRedux).map(item => ({
             ...item,
             possession: 'blue'
         }))
     ));
 
- 
-
     const [player2, setPlayer2] = useState([]);
     const [choiseCard, setChoiceCard] = useState(null);
     const [steps, setSteps] = useState(0);
 
-
     const history = useHistory();
-
 
     useEffect(() => {
         const fetcData = async () => {
@@ -54,13 +58,10 @@ const BoardPage = () => {
 
             setBoard(boardRequest.data);
 
-            const player2Response = await fetch('https://reactmarathon-api.netlify.app/api/create-player');
-            const player2Request = await player2Response.json();
-
-            player2Pokemons(player2Request.data);
+            dispatch(getEnemyPokemonsAsync());
 
             setPlayer2(() => {
-                return player2Request.data.map(item => ({
+                return selectEnemyPokemonsRedux.map(item => ({
                     ...item,
                     possession: 'red',
                 }))
@@ -69,7 +70,7 @@ const BoardPage = () => {
         fetcData();
     }, []);
 
-    if(Object.keys(pokemons).length === 0) {
+    if(Object.keys(SelectedPokemonsRedux).length === 0) {
         history.replace('/game');
     }
 
@@ -91,7 +92,6 @@ const BoardPage = () => {
 
             const request = await res.json();
 
-
             if(choiseCard.player === 1) {
                 setPlayer1(prevState => prevState.filter(item => item.id !== choiseCard.id))
             }
@@ -109,13 +109,12 @@ const BoardPage = () => {
         }
     }
 
-
     useEffect(() => {
         if(steps === 9) {
             const [count1, count2] = counterWin(board, player1, player2);
             if(count1 > count2) {
                 alert('WIN');
-                getGameStatus(true);
+                dispatch(setGameStatus(true));
             } else if (count2 > count1) {
                 alert('LOSE')
             } else {

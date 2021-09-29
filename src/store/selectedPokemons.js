@@ -7,22 +7,31 @@ export const slice = createSlice({
   },
   reducers: { 
     onSelectedPokemons: (state, {payload: {key, pokemon}}) => {
-      if(state[key]) {
-        const copyState = {...state};
-        delete copyState[key];
-        return copyState;
+      const newPokemons = {...state.selectedPokemons}
+      if(newPokemons[key]) {
+        delete newPokemons[key];
+        return {
+          ...state,
+          selectedPokemons: newPokemons
+        }
       }
-      console.log('#### STATE: ',state.selectedPokemons);
-      return {
-        ...state,
-        [key]: pokemon,
+      if(Object.entries(state.selectedPokemons).length < 5) {
+        newPokemons[key] = pokemon;
+        return {
+          ...state,
+          selectedPokemons: newPokemons
+        }
       }
     },
+    clearSelectedPokemons: (state) => ({
+      ...state,
+      selectedPokemons: {},
+    }),
   }
 })
 
 
-export const {onSelectedPokemons, setSelectedPokemons} = slice.actions;
+export const {onSelectedPokemons, clearSelectedPokemons} = slice.actions;
 
 export  const areSelectedPokemons = (state) => state.selectedPokemons.selectedPokemons;
 
