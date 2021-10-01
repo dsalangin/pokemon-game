@@ -10,20 +10,13 @@ import POKEMONS from '../../components/PokemonCard/pokemons';
 import bg1 from '../../assets/bg1.jpg';
 import bg3 from '../../assets/bg3.jpg';
 
-import { useDispatch, useSelector } from 'react-redux';
-
 import s from './style.module.css';
-import { plusAction, selectCount } from '../../store/counter';
 
 const HomePage = () => {
-  const count = useSelector(selectCount);
-  const dispatch = useDispatch();
-  console.log('#### HomePage count: ', count);
 
   const history= useHistory();
   const handleClick = () => {
-    dispatch(plusAction(1));
-    //history.push('/game');
+    history.push('/game');
   }
 
   return (
