@@ -1,31 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import s from './style.module.css';
 
-const LoginForm = ({onSubmit}) => {
+const LoginForm = ({onSubmit, isResetField=false}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [log, setLog] = useState('Login?');
-  const [sign, setSign] = useState('SIGNUP');
+
+  useEffect(() => {
+    setEmail('');
+    setPassword('');
+  },[isResetField]);
+
+  const [isLogin, setLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    onSubmit && onSubmit(sign, {
+    onSubmit && onSubmit({
+      type: isLogin ? 'login' : 'signup',
       email,
-      password
+      password,
     })
     setEmail('');
     setPassword('');
-  };
-
-  const handleChangeLog = () => {
-    if (log === 'Login?') {
-      setLog('Register?');
-      setSign('SIGNIN');
-    } else {
-      setLog('Login?');
-      setSign('SIGNUP');
-    }
   };
 
   const handleShowPassword = () => {
@@ -63,13 +59,13 @@ const LoginForm = ({onSubmit}) => {
       </div>
       <div className={s.flex}>
         <button>
-          { sign }
+          { isLogin ? 'Login' : 'Signup' }
         </button>
           <span 
             className={s.logButton}
-            onClick={handleChangeLog}
+            onClick={() => setLogin(!isLogin)}
           >
-            { log }
+            { isLogin ? 'Register' : 'Login' }
           </span>
       </div>
     </form>
