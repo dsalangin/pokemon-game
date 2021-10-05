@@ -1,4 +1,7 @@
+import { useEffect } from 'react';
 import { useLocation, Route, Switch, Redirect } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux'
+import {NotificationContainer} from 'react-notifications';
 
 import cn from 'classnames';
 
@@ -6,23 +9,33 @@ import HomePage from './routes/Home/index';
 import GamePage from './routes/Game/index';
 import AboutPage from './routes/About/index';
 import  ContactPage from './routes/Contact/index';
+ import UserPage from'./routes/User/index';
 import  NotFound from './routes/NotFound/index';
-
+import PrivateRoute from './components/PrivateRoute/index';
 import MenuHeader from './components/MenuHeader';
 import Footer from './components/Footer';
 
-import { FireBaseContext } from './context/firebaseContext';
-import Firebase from './service/firebase';
+import { getUserAsync, selectUserLoading } from './store/user';
 
 import s from './style.module.css';
 
 
 const App = () => {
+  const isUserLoading = useSelector(selectUserLoading);
   const location = useLocation();
   const isPadding = location.pathname === '/' || location.pathname === '/game/board';
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(getUserAsync())
+  }, []);
+
+  if (isUserLoading) {
+    return 'Loading...';
+  };
+  
   return (
-    <FireBaseContext.Provider value={new Firebase()}>
+    <>
       <Switch>
         <Route path="/404" component={NotFound} />
         <Route>
@@ -33,9 +46,10 @@ const App = () => {
             })}>
               <Switch>
                 <Route path="/" exact component={HomePage} />
-                <Route path="/game" component={GamePage} />
-                <Route path="/about" component={AboutPage} />
-                <Route path="/contact" component={ContactPage} />
+                <PrivateRoute path="/game" component={GamePage} />
+                <PrivateRoute path="/about" component={AboutPage} />
+                <PrivateRoute path="/contact" component={ContactPage} />
+                <PrivateRoute path="/user" component={UserPage} />
                 <Route render={() => (
                   <Redirect to="/404"/>
                 )} />
@@ -45,7 +59,8 @@ const App = () => {
           </>
         </Route>
       </Switch>
-    </FireBaseContext.Provider>
+      <NotificationContainer />
+    </>
   )
 };
 

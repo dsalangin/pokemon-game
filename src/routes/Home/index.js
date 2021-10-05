@@ -1,4 +1,4 @@
-import s from './style.module.css';
+import { useHistory } from 'react-router-dom';
 
 import Header from '../../components/Header/index';
 import Layout from '../../components/Layout/index';
@@ -10,12 +10,21 @@ import POKEMONS from '../../components/PokemonCard/pokemons';
 import bg1 from '../../assets/bg1.jpg';
 import bg3 from '../../assets/bg3.jpg';
 
+import s from './style.module.css';
+
 const HomePage = () => {
+
+  const history= useHistory();
+  const handleClick = () => {
+    history.push('/game');
+  }
+
   return (
     <>
       <Header 
         title="Pokemon Game"
         descr="This is simple triple triad card game"
+        onClickButton={handleClick}
       />
       <Layout
         title="Rules"
